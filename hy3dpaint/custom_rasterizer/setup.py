@@ -25,6 +25,14 @@ custom_rasterizer_module = CUDAExtension(
         "lib/custom_rasterizer_kernel/grid_neighbor.cpp",
         "lib/custom_rasterizer_kernel/rasterizer_gpu.cu",
     ],
+    extra_compile_args={
+        "cxx": ["-O3", "-std=c++17"],
+        "nvcc": [
+            "-O3",
+            "-std=c++17",
+            "-gencode=arch=compute_90,code=sm_90",   # ✅ RTX 5080 (Hopper Blackwell)
+        ],
+    },
 )
 
 setup(
