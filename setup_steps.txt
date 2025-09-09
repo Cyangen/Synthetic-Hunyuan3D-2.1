@@ -1,0 +1,21 @@
+DONE IN WSL
+
+uv venv -p 3.11 wsl_venv --seed
+source wsl_venv/bin/activate
+uv pip install torch torchvision torchaudio --torch-backend=auto
+uv pip install deepspeed==0.17.5 --no-build-isolation
+uv pip install -r requirements.txt
+
+cd hy3dpaint/custom_rasterizer
+uv pip install --no-build-isolation -e .
+cd ../..
+cd hy3dpaint/DifferentiableRenderer
+bash compile_mesh_painter.sh
+cd ../..
+
+
+uv run gradio_app.py \
+  --model_path tencent/Hunyuan3D-2.1 \
+  --subfolder hunyuan3d-dit-v2-1 \
+  --texgen_model_path tencent/Hunyuan3D-2.1 \
+  --low_vram_mode
