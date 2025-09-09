@@ -13,9 +13,15 @@ cd hy3dpaint/DifferentiableRenderer
 bash compile_mesh_painter.sh
 cd ../..
 
+wget https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth -P hy3dpaint/ckpt
+
+cd /mnt/s/Code/Hunyuan3D-2.1
+source wsl_venv/bin/activate
 
 uv run gradio_app.py \
   --model_path tencent/Hunyuan3D-2.1 \
   --subfolder hunyuan3d-dit-v2-1 \
   --texgen_model_path tencent/Hunyuan3D-2.1 \
   --low_vram_mode
+  
+uv run gradio_app.py --model_path tencent/Hunyuan3D-2.1 --subfolder hunyuan3d-dit-v2-1 --texgen_model_path tencent/Hunyuan3D-2.1 --low_vram_mode
