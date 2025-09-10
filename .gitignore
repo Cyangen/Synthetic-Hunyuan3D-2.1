@@ -184,3 +184,4 @@ white_mesh_remesh.obj
 hy3dpaint/ckpt/
 save_dir/env_maps
 test.py
+save_dir
