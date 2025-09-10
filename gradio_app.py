@@ -44,6 +44,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 import uuid
 import numpy as np
+import gc
 
 from hy3dshape.utils import logger
 from hy3dpaint.convert_utils import create_glb_with_pbr_materials
@@ -89,7 +90,11 @@ def change_model_hunyuan(model_selected):
     if model_selected == defualt_model:
         return
     defualt_model = model_selected
+
+    #Clear VRam
     del i23d_worker
+    gc.collect()
+    torch.cuda.empty_cache()
 
     match model_selected:
         case "tencent/Hunyuan3D-2.1":
