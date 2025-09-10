@@ -510,7 +510,7 @@ def build_app():
     {title}
     </div>
     <div align="center">
-    Tencent Hunyuan3D Team
+    SAF Computer Vision Unit
     </div>
     """
     custom_css = """
