@@ -113,9 +113,9 @@ OR
 uv pip install torch torchvision torchaudio --torch-backend=auto
 ```
 
-3. Install requirements.txt
+3. Install requirements.txt (correct_requirements.txt)
 ```bash
-uv pip install --index-strategy unsafe-best-match -r requirements.txt
+uv pip install --index-strategy unsafe-best-match -r correct_requirements.txt
 ```
 
 4. Install custom_rasterizer 
