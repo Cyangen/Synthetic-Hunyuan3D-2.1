@@ -102,7 +102,7 @@ def change_model_hunyuan(model_selected):
 
     #MODEL DEFINITION
     i23d_worker = Hunyuan3DDiTFlowMatchingPipeline.from_pretrained(
-        model_selected,
+        defualt_model,
         subfolder=default_subfolder,
         use_safetensors=False,
         device=args.device,
