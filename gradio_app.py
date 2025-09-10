@@ -452,16 +452,16 @@ def shape_generation(
 
 
 def build_app():
-    title = 'Hunyuan3D-2: High Resolution Textured 3D Assets Generation'
-    if MV_MODE:
-        title = 'Hunyuan3D-2mv: Image to 3D Generation with 1-4 Views'
-    if 'mini' in args.subfolder:
-        title = 'Hunyuan3D-2mini: Strong 0.6B Image to Shape Generator'
+    # title = 'Hunyuan3D-2: High Resolution Textured 3D Assets Generation'
+    # if MV_MODE:
+    #     title = 'Hunyuan3D-2mv: Image to 3D Generation with 1-4 Views'
+    # if 'mini' in args.subfolder:
+    #     title = 'Hunyuan3D-2mini: Strong 0.6B Image to Shape Generator'
 
-    title = 'Hunyuan-3D-2.1'
+    title = 'Some Funny Gradio App'
         
-    if TURBO_MODE:
-        title = title.replace(':', '-Turbo: Fast ')
+    # if TURBO_MODE:
+    #     title = title.replace(':', '-Turbo: Fast ')
 
     title_html = f"""
     <div style="font-size: 2em; font-weight: bold; text-align: center; margin-bottom: 5px">
@@ -486,14 +486,14 @@ def build_app():
 
     """
 
-    with gr.Blocks(theme=gr.themes.Base(), title='Hunyuan-3D-2.1', analytics_enabled=False, css=custom_css) as demo:
+    with gr.Blocks(theme=gr.themes.Base(), title=title, analytics_enabled=False, css=custom_css) as demo:
         gr.HTML(title_html)
 
         with gr.Row():
             with gr.Column(scale=3):
                 with gr.Tabs(selected='tab_img_prompt') as tabs_prompt:
                     with gr.Tab('Image Prompt', id='tab_img_prompt', visible=not MV_MODE) as tab_ip:
-                        image = gr.Image(label='Image', type='pil', image_mode='RGBA', height=290)
+                        image = gr.Image(label='Image', type='pil', image_mode='RGBA', height=190)
                         caption = gr.State(None)
 #                    with gr.Tab('Text Prompt', id='tab_txt_prompt', visible=HAS_T2I and not MV_MODE) as tab_tp:
 #                        caption = gr.Textbox(label='Text Prompt',
@@ -582,6 +582,14 @@ Fast for very complex cases, Standard seldom use.',
                             confirm_export = gr.Button(value="Transform", min_width=100)
                             file_export = gr.DownloadButton(label="Download", variant='primary',
                                                             interactive=False, min_width=100)
+                with gr.Tabs(selected='model_dropdown'):
+                    with gr.Tab("Model Selection", id='model_dropdown'):
+                        with gr.Row():
+                            model_selected = gr.Dropdown(label='Model:', 
+                                                    choices=["Hunyuan3D-2.1", "Hunyuan3D-2.0", "model-1", "model-2", "model-3"],
+                                                    # value="Hunyuan3D-2.1", 
+                                                    interactive = True,
+                                                    min_width=100)
 
             with gr.Column(scale=6):
                 with gr.Tabs(selected='gen_mesh_panel') as tabs_output:
@@ -592,16 +600,16 @@ Fast for very complex cases, Standard seldom use.',
                     with gr.Tab('Mesh Statistic', id='stats_panel'):
                         stats = gr.Json({}, label='Mesh Stats')
 
-            with gr.Column(scale=3 if MV_MODE else 2):
-                with gr.Tabs(selected='tab_img_gallery') as gallery:
-                    with gr.Tab('Image to 3D Gallery', 
-                                id='tab_img_gallery', 
-                                visible=not MV_MODE) as tab_gi:
-                        with gr.Row():
-                            gr.Examples(examples=example_is, inputs=[image],
-                                        label=None, examples_per_page=18)
+            # with gr.Column(scale=3 if MV_MODE else 2):
+            #     with gr.Tabs(selected='tab_img_gallery') as gallery:
+            #         with gr.Tab('Image to 3D Gallery', 
+            #                     id='tab_img_gallery', 
+            #                     visible=not MV_MODE) as tab_gi:
+            #             with gr.Row():
+            #                 gr.Examples(examples=example_is, inputs=[image],
+            #                             label=None, examples_per_page=18)
 
-        tab_ip.select(fn=lambda: gr.update(selected='tab_img_gallery'), outputs=gallery)
+        # tab_ip.select(fn=lambda: gr.update(selected='tab_img_gallery'), outputs=gallery)
         #if HAS_T2I:
         #    tab_tp.select(fn=lambda: gr.update(selected='tab_txt_gallery'), outputs=gallery)
 
