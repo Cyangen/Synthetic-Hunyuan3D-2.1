@@ -86,6 +86,59 @@ It takes 10 GB VRAM for shape generation, 21GB for texture generation and 29GB f
 | Hunyuan3D-Shape-v2-1         | Image to Shape Model        | 2025-06-14 | 3.3B | [Download](https://huggingface.co/tencent/Hunyuan3D-2.1/tree/main/hunyuan3d-dit-v2-1)         |
 | Hunyuan3D-Paint-v2-1       | Texture Generation Model    | 2025-06-14 | 2B | [Download](https://huggingface.co/tencent/Hunyuan3D-2.1/tree/main/hunyuan3d-paintpbr-v2-1)       |
 
+## 🤗 ZL's Awesome Hunyuan3D 2.1 guide
+
+### IN WSL 
+
+0. In C:\Users\<username>\ , make a .wslconfig file (adjust according to your comp specs)
+```
+[wsl2]
+memory=24GB
+processors=6
+swap=32GB
+localhostForwarding=true
+```
+
+1. Make the venv & activate it
+```bash
+uv venv --python 3.10 --seed
+source .venv/bin/activate
+```
+2. Install torch cuda (any version that works)
+```bash
+uv pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu124
+```
+OR
+```bash
+uv pip install torch torchvision torchaudio --torch-backend=auto
+```
+
+3. Install requirements.txt
+```bash
+uv pip install --index-strategy unsafe-best-match -r requirements.txt
+```
+
+4. Install custom_rasterizer 
+```bash
+cd hy3dpaint/custom_rasterizer
+uv pip install --no-build-isolation -e .
+cd ../..
+cd hy3dpaint/DifferentiableRenderer
+bash compile_mesh_painter.sh
+cd ../..
+```
+
+5. Install Real-ESRGAN checkpt (make sure ckpt is in hy3dpaint folder)
+```bash
+wget https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth -P hy3dpaint/ckpt
+```
+
+6. Launch gradio webapp and load models (Other models auto-downloaded)
+```bash
+uv run gradio_app.py --model_path tencent/Hunyuan3D-2.1 --subfolder hunyuan3d-dit-v2-1 --texgen_model_path tencent/Hunyuan3D-2.1 --low_vram_mode
+```
+
+7. On your browser go to localhost:8080
 
 ## 🤗 Get Started with Hunyuan3D 2.1
 
