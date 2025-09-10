@@ -113,7 +113,7 @@ OR
 uv pip install torch torchvision torchaudio --torch-backend=auto
 ```
 
-3. Install requirements.txt (correct_requirements.txt)
+3. Install requirements.txt (correct_requirements.txt for 3.10 venv)
 ```bash
 uv pip install --index-strategy unsafe-best-match -r correct_requirements.txt
 ```
