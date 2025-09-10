@@ -88,7 +88,7 @@ else:
 def change_model_hunyuan(model_selected):
     global i23d_worker, default_subfolder, defualt_model
     if model_selected == defualt_model:
-        return
+        return gr.update(value=f"Model {model_selected}/{default_subfolder} is already loaded"), gr.update()
     defualt_model = model_selected
 
     #Clear VRam
@@ -119,7 +119,10 @@ def change_model_hunyuan(model_selected):
     floater_remove_worker = FloaterRemover()
     degenerate_face_remove_worker = DegenerateFaceRemover()
     face_reduce_worker = FaceReducer()
-    return
+
+    success_message = f"✅ Successfully loaded model: {defualt_model}/{default_subfolder}"
+    print(success_message)
+    return gr.update(value=success_message), gr.update(value=model_selected)
 
 
 def get_example_img_list():
@@ -629,6 +632,13 @@ Fast for very complex cases, Standard seldom use.',
                                                     interactive = True,
                                                     min_width=100)
                             model_selection_btn = gr.Button(value='Change Model', variant='primary', min_width=100) 
+                        with gr.Row():
+                            model_status = gr.Textbox(
+                                label="Model Status",
+                                value=f"Current model: {args.model_path}",
+                                interactive=False,
+                                max_lines=2
+                            )
 
             with gr.Column(scale=6):
                 with gr.Tabs(selected='gen_mesh_panel') as tabs_output:
@@ -654,7 +664,8 @@ Fast for very complex cases, Standard seldom use.',
         model_selection_btn.click(
             change_model_hunyuan,
             inputs=[model_selected],
-            outputs=[]
+            outputs=[model_status, model_selected],
+            show_progress=True
         )
 
         btn.click(
