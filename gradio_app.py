@@ -87,21 +87,18 @@ else:
             
 def change_model_hunyuan(model_selected):
     global i23d_worker, default_subfolder, defualt_model
-    if model_selected == defualt_model:
-        return gr.update(value=f"Model {model_selected}/{default_subfolder} is already loaded"), gr.update()
-    defualt_model = model_selected
 
-    #Clear VRam
+    # Checks if same model
+    if MODELS_DICT[model_selected] == (defualt_model, default_subfolder):
+        return gr.update(value=f"Model {defualt_model}/{default_subfolder} is already loaded"), gr.update()
+
+    # Clear VRam
     del i23d_worker
     gc.collect()
     torch.cuda.empty_cache()
 
-    match model_selected:
-        case "tencent/Hunyuan3D-2.1":
-            default_subfolder = 'hunyuan3d-dit-v2-1'
-        case "tencent/Hunyuan3D-2":
-            default_subfolder = 'hunyuan3d-dit-v2-0-turbo'
-
+    # define chosen hf model 
+    defualt_model, default_subfolder = MODELS_DICT[model_selected]
 
     #MODEL DEFINITION
     i23d_worker = Hunyuan3DDiTFlowMatchingPipeline.from_pretrained(
@@ -626,8 +623,8 @@ Fast for very complex cases, Standard seldom use.',
                 with gr.Tabs(selected='model_dropdown'):
                     with gr.Tab("Model Selection", id='model_dropdown'):
                         with gr.Row():
-                            model_selected = gr.Dropdown(label='Model:', 
-                                                    choices=[args.model_path, "tencent/Hunyuan3D-2", "model-1", "model-2", "model-3"],
+                            model_selected = gr.Dropdown(label='Shape Model:', 
+                                                    choices=list(MODELS_DICT.keys()),
                                                     # value="Hunyuan3D-2.1", 
                                                     interactive = True,
                                                     min_width=100)
@@ -795,6 +792,12 @@ Fast for very complex cases, Standard seldom use.',
 
 if __name__ == '__main__':
     import argparse
+
+    MODELS_DICT = { # {selection: (hf_model_pth, subfolder)}
+        "hunyuan3d-dit-v2-1": ("tencent/Hunyuan3D-2.1", 'hunyuan3d-dit-v2-1'),
+        "hunyuan3d-dit-v2-0-turbo": ("tencent/Hunyuan3D-2",'hunyuan3d-dit-v2-0-turbo'),
+        "hunyuan3d-dit-v2-0-fast" : ("tencent/Hunyuan3D-2","hunyuan3d-dit-v2-0-fast")
+        }
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_path", type=str, default='tencent/Hunyuan3D-2.1')
