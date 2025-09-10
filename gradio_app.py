@@ -496,7 +496,7 @@ def build_app():
     # if 'mini' in args.subfolder:
     #     title = 'Hunyuan3D-2mini: Strong 0.6B Image to Shape Generator'
 
-    title = 'Some Funny Gradio App'
+    title = "SCVU's Funny Gradio App"
         
     # if TURBO_MODE:
     #     title = title.replace(':', '-Turbo: Fast ')
