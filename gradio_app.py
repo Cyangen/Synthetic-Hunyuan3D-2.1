@@ -83,6 +83,39 @@ else:
                 self.duration = duration
             def __call__(self, func):
                 return func 
+            
+def change_model_hunyuan(model_selected):
+    global i23d_worker, default_subfolder, defualt_model
+    if model_selected == defualt_model:
+        return
+    defualt_model = model_selected
+    del i23d_worker
+
+    match model_selected:
+        case "tencent/Hunyuan3D-2.1":
+            default_subfolder = 'hunyuan3d-dit-v2-1'
+        case "tencent/Hunyuan3D-2":
+            default_subfolder = 'hunyuan3d-dit-v2-0-turbo'
+
+
+    #MODEL DEFINITION
+    i23d_worker = Hunyuan3DDiTFlowMatchingPipeline.from_pretrained(
+        model_selected,
+        subfolder=default_subfolder,
+        use_safetensors=False,
+        device=args.device,
+    )
+    if args.enable_flashvdm:
+        mc_algo = 'mc' if args.device in ['cpu', 'mps'] else args.mc_algo
+        i23d_worker.enable_flashvdm(mc_algo=mc_algo)
+    if args.compile:
+        i23d_worker.compile()
+
+    floater_remove_worker = FloaterRemover()
+    degenerate_face_remove_worker = DegenerateFaceRemover()
+    face_reduce_worker = FaceReducer()
+    return
+
 
 def get_example_img_list():
     """
@@ -252,7 +285,7 @@ def _gen_shape(
     save_folder = gen_save_folder()
     stats = {
         'model': {
-            'shapegen': f'{args.model_path}/{args.subfolder}',
+            'shapegen': f'{defualt_model}/{default_subfolder}',
             'texgen': f'{args.texgen_model_path}',
         },
         'params': {
@@ -586,10 +619,11 @@ Fast for very complex cases, Standard seldom use.',
                     with gr.Tab("Model Selection", id='model_dropdown'):
                         with gr.Row():
                             model_selected = gr.Dropdown(label='Model:', 
-                                                    choices=["Hunyuan3D-2.1", "Hunyuan3D-2.0", "model-1", "model-2", "model-3"],
+                                                    choices=[args.model_path, "tencent/Hunyuan3D-2", "model-1", "model-2", "model-3"],
                                                     # value="Hunyuan3D-2.1", 
                                                     interactive = True,
                                                     min_width=100)
+                            model_selection_btn = gr.Button(value='Change Model', variant='primary', min_width=100) 
 
             with gr.Column(scale=6):
                 with gr.Tabs(selected='gen_mesh_panel') as tabs_output:
@@ -612,6 +646,11 @@ Fast for very complex cases, Standard seldom use.',
         # tab_ip.select(fn=lambda: gr.update(selected='tab_img_gallery'), outputs=gallery)
         #if HAS_T2I:
         #    tab_tp.select(fn=lambda: gr.update(selected='tab_txt_gallery'), outputs=gallery)
+        model_selection_btn.click(
+            change_model_hunyuan,
+            inputs=[model_selected],
+            outputs=[]
+        )
 
         btn.click(
             shape_generation,
@@ -840,6 +879,10 @@ if __name__ == '__main__':
     from hy3dshape.rembg import BackgroundRemover
 
     rmbg_worker = BackgroundRemover()
+
+    #MODEL DEFINITION
+    defualt_model = args.model_path
+    default_subfolder=args.subfolder
     i23d_worker = Hunyuan3DDiTFlowMatchingPipeline.from_pretrained(
         args.model_path,
         subfolder=args.subfolder,
