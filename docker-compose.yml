@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  hunyuan3d-backend:
+    build: .
+    image: hunyuan3d21-backend:latest
+    container_name: hunyuan3d-backend
+    restart: unless-stopped
+    
+    # GPU support (requires nvidia-container-toolkit)
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    
+    ports:
+      - "8081:8081"
+    
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - LOW_VRAM_MODE=true
+    
+    volumes:
+      - ./gradio_cache:/workspace/Hunyuan3D-2.1/gradio_cache
+      - huggingface_cache:/root/.cache/huggingface
+    
+    shm_size: '16gb'
+
+volumes:
+  huggingface_cache:
+

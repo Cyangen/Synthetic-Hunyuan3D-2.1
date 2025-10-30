@@ -1,0 +1,99 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python cache
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.venv
+venv/
+ENV/
+env/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints
+*.ipynb
+
+# Cache directories
+save_dir/
+gradio_cache/
+.cache/
+
+# Model weights (download at runtime)
+*.pth
+*.pt
+*.ckpt
+*.safetensors
+!hy3dpaint/ckpt/.gitkeep
+
+# Output files
+*.glb
+*.obj
+*.ply
+*.stl
+*.mtl
+*.jpg
+*.png
+*.jpeg
+
+# Logs
+*.log
+logs/
+
+# Test files
+test_*.py
+*_test.py
+test_api.ipynb
+
+# Documentation
+*.md
+!README.md
+assets/images/
+assets/qrcode/
+
+# Docker files (avoid recursive copy)
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# OS files
+Thumbs.db
+
+# Build artifacts
+*.deb
+cuda-keyring_1.1-1_all.deb
+
+# Scripts (but keep docker-entrypoint.sh)
+run_app.sh
+!docker-entrypoint.sh
+
+# Large unnecessary directories
+docker/
+
+# Setup notes
+setup_*.txt
+

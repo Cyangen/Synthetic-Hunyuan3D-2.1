@@ -144,6 +144,29 @@ uv run gradio_app.py --model_path tencent/Hunyuan3D-2.1 --subfolder hunyuan3d-di
 
 Hunyuan3D 2.1 supports Macos, Windows, Linux. You may follow the next steps to use Hunyuan3D 2.1 via:
 
+### 🐳 Quick Start with Docker (Recommended)
+
+The easiest way to run Hunyuan3D 2.1 as a backend API:
+
+```bash
+# Clean Docker resources (if needed)
+docker system prune -a --volumes -f
+
+# Build and run
+docker-compose up --build
+```
+
+**Access the API:**
+- **Backend:** http://localhost:8081
+- **API Docs:** http://localhost:8081/docs
+
+See [README_DOCKER.md](README_DOCKER.md) for full API documentation and usage examples.
+
+**Requirements:**
+- Docker + Docker Compose
+- NVIDIA GPU with 21GB+ VRAM
+- NVIDIA Container Toolkit
+
 ### Install Requirements
 We test our model with Python 3.10 and PyTorch 2.5.1+cu124.
 ```bash
