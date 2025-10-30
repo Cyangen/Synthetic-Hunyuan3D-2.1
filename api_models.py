@@ -66,6 +66,16 @@ class GenerationResponse(BaseModel):
 class StatusResponse(BaseModel):
     """Response model for status endpoint"""
     status: str = Field(..., description="Status of the generation task")
+    progress: Optional[int] = Field(
+        None,
+        description="Progress percentage (0-100)",
+        ge=0,
+        le=100
+    )
+    stage: Optional[str] = Field(
+        None,
+        description="Current processing stage"
+    )
     model_base64: Optional[str] = Field(
         None, 
         description="Base64 encoded generated model file (only when status is 'completed')"

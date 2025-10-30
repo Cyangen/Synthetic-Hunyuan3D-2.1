@@ -79,9 +79,12 @@ RUN uv pip install --index-strategy unsafe-best-match -r requirements.txt
 RUN cd hy3dpaint/custom_rasterizer && \
     uv pip install --no-build-isolation -e .
 
-# 5. Compile DifferentiableRenderer
+# 5. Compile DifferentiableRenderer using pybind11
 RUN cd hy3dpaint/DifferentiableRenderer && \
-    bash compile_mesh_painter.sh
+    c++ -O3 -Wall -shared -std=c++11 -fPIC \
+    $(python -m pybind11 --includes) \
+    mesh_inpaint_processor.cpp \
+    -o mesh_inpaint_processor$(python -c "import sysconfig; print(sysconfig.get_config_var('EXT_SUFFIX'))")
 
 # 6. Download Real-ESRGAN checkpoint
 RUN mkdir -p hy3dpaint/ckpt && \
@@ -99,6 +102,6 @@ EXPOSE 8081
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5m --retries=3 \
     CMD curl -f http://localhost:8081/health || exit 1
 
-# Default command: run FastAPI backend used by frontend
+# Default command: run FastAPI backend used by frontend (v2.1 only public model available)
 CMD ["python", "api_server.py", "--host", "0.0.0.0", "--port", "8081", "--low_vram_mode"]
 

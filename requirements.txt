@@ -52,7 +52,6 @@ psutil==6.0.0
 # GPU Computing (requires CUDA)
 cupy-cuda12x==13.4.1
 
-# Blender
 bpy
 
 # ONNX Runtime

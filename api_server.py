@@ -50,6 +50,9 @@ logger = build_logger("controller", f"{SAVE_DIR}/controller.log")
 worker = None
 model_semaphore = None
 
+# Progress tracking dictionary: {uid: {"progress": int, "stage": str}}
+progress_tracker = {}
+
 
 app = FastAPI(
     title=API_TITLE,
@@ -115,6 +118,41 @@ async def generate_3d_model(request: GenerationRequest):
         return JSONResponse(ret, status_code=404)
 
 
+def generation_wrapper(uid, params):
+    """Wrapper function to track progress during generation."""
+    uid_str = str(uid)
+    try:
+        # Stage 1: Initializing
+        progress_tracker[uid_str] = {"progress": 5, "stage": "Initializing"}
+        
+        # Stage 2: Preprocessing image
+        progress_tracker[uid_str] = {"progress": 15, "stage": "Preprocessing image"}
+        
+        # Stage 3: Generating 3D shape (25-50%)
+        progress_tracker[uid_str] = {"progress": 30, "stage": "Generating 3D shape"}
+        
+        # Call the actual generation
+        worker.generate(uid, params)
+        
+        # Stage 4: Post-processing mesh (50-60%)
+        progress_tracker[uid_str] = {"progress": 55, "stage": "Post-processing mesh"}
+        
+        # Check if texture generation is enabled
+        if params.get('texture', False):
+            # Stage 5: Generating texture (60-90%)
+            progress_tracker[uid_str] = {"progress": 70, "stage": "Generating texture"}
+            progress_tracker[uid_str] = {"progress": 85, "stage": "Applying texture"}
+        
+        # Stage 6: Finalizing
+        progress_tracker[uid_str] = {"progress": 95, "stage": "Finalizing"}
+        
+        # Mark as complete
+        progress_tracker[uid_str] = {"progress": 100, "stage": "Completed"}
+    except Exception as e:
+        progress_tracker[uid_str] = {"progress": 0, "stage": f"Error: {str(e)}"}
+        logger.error(f"Generation failed: {e}")
+
+
 @app.post("/send", response_model=GenerationResponse, tags=["generation"])
 async def send_generation_task(request: GenerationRequest):
     """
@@ -133,7 +171,11 @@ async def send_generation_task(request: GenerationRequest):
     
     uid = uuid.uuid4()
     try:
-        threading.Thread(target=worker.generate, args=(uid, params,)).start()
+        # Initialize progress tracking
+        progress_tracker[str(uid)] = {"progress": 0, "stage": "Queued"}
+        
+        # Start generation in background thread
+        threading.Thread(target=generation_wrapper, args=(uid, params,)).start()
         ret = {"uid": str(uid)}
         return JSONResponse(ret, status_code=200)
     except Exception as e:
@@ -162,33 +204,54 @@ async def status(uid: str):
         uid: The unique identifier of the generation task
         
     Returns:
-        StatusResponse: Current status of the task and result if completed
+        StatusResponse: Current status of the task, progress, and result if completed
     """
+    # Get progress information if available
+    progress_info = progress_tracker.get(uid, {})
+    progress = progress_info.get("progress", 0)
+    stage = progress_info.get("stage", "Unknown")
+    
     # Check for textured file first (preferred output)
     textured_file_path = os.path.join(SAVE_DIR, f'{uid}_textured.glb')
     initial_file_path = os.path.join(SAVE_DIR, f'{uid}_initial.glb')
-    
-    #print(f"Checking files: {textured_file_path} ({os.path.exists(textured_file_path)}), {initial_file_path} ({os.path.exists(initial_file_path)})")
     
     # If textured file exists, generation is complete
     if os.path.exists(textured_file_path):
         try:
             base64_str = base64.b64encode(open(textured_file_path, 'rb').read()).decode()
-            response = {'status': 'completed', 'model_base64': base64_str}
+            response = {
+                'status': 'completed',
+                'progress': 100,
+                'stage': 'Completed',
+                'model_base64': base64_str
+            }
             return JSONResponse(response, status_code=200)
         except Exception as e:
             logger.error(f"Error reading file {textured_file_path}: {e}")
-            response = {'status': 'error', 'message': 'Failed to read generated file'}
+            response = {
+                'status': 'error',
+                'progress': 0,
+                'stage': 'Error reading file',
+                'message': 'Failed to read generated file'
+            }
             return JSONResponse(response, status_code=500)
     
     # If only initial file exists, texturing is in progress
     elif os.path.exists(initial_file_path):
-        response = {'status': 'texturing'}
+        response = {
+            'status': 'texturing',
+            'progress': max(progress, 60),  # At least 60% if texturing
+            'stage': stage if progress > 0 else 'Generating texture'
+        }
         return JSONResponse(response, status_code=200)
     
     # If no files exist, still processing
     else:
-        response = {'status': 'processing'}
+        response = {
+            'status': 'processing',
+            'progress': min(progress, 50),  # Cap at 50% until mesh is generated
+            'stage': stage if progress > 0 else 'Generating 3D mesh'
+        }
         return JSONResponse(response, status_code=200)
 
 
