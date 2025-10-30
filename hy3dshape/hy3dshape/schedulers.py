@@ -302,7 +302,9 @@ class FlowMatchEulerDiscreteScheduler(SchedulerMixin, ConfigMixin):
         sample = sample.to(torch.float32)
 
         sigma = self.sigmas[self.step_index]
-        sigma_next = self.sigmas[self.step_index + 1]
+        # Clamp step_index + 1 to prevent out-of-bounds (fix for index 51 error)
+        next_idx = min(self.step_index + 1, len(self.sigmas) - 1)
+        sigma_next = self.sigmas[next_idx]
 
         prev_sample = sample + (sigma_next - sigma) * model_output
 
