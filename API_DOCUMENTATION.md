@@ -95,7 +95,19 @@ Start asynchronous 3D generation task.
 Check service health status.
 
 #### GET `/status/{uid}`
-Check task status and retrieve results.
+Check task status and retrieve results with detailed progress information.
+
+**Response fields:**
+- `status`: Current status (processing, texturing, completed, error)
+- `progress`: Progress percentage (0-100)
+- `stage`: Current processing stage
+- `step`: Current step number in pipeline (optional)
+- `total_steps`: Total steps in pipeline (optional)
+- `current_operation`: Detailed description of current operation (optional)
+- `eta`: Estimated time remaining in seconds (optional)
+- `time_elapsed`: Time elapsed since start in seconds (optional)
+- `model_base64`: Base64 encoded model (only when completed)
+- `message`: Error message (only when error)
 
 ## Accessing the Documentation
 

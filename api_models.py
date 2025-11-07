@@ -64,7 +64,7 @@ class GenerationResponse(BaseModel):
 
 
 class StatusResponse(BaseModel):
-    """Response model for status endpoint"""
+    """Response model for status endpoint with detailed progress information"""
     status: str = Field(..., description="Status of the generation task")
     progress: Optional[int] = Field(
         None,
@@ -75,6 +75,26 @@ class StatusResponse(BaseModel):
     stage: Optional[str] = Field(
         None,
         description="Current processing stage"
+    )
+    step: Optional[int] = Field(
+        None,
+        description="Current step number in the generation pipeline"
+    )
+    total_steps: Optional[int] = Field(
+        None,
+        description="Total number of steps in the generation pipeline"
+    )
+    current_operation: Optional[str] = Field(
+        None,
+        description="Detailed description of current operation"
+    )
+    eta: Optional[float] = Field(
+        None,
+        description="Estimated time remaining in seconds"
+    )
+    time_elapsed: Optional[float] = Field(
+        None,
+        description="Time elapsed since generation started in seconds"
     )
     model_base64: Optional[str] = Field(
         None, 

@@ -50,9 +50,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxext6 \
     libglib2.0-0 \
     mesa-utils-extra \
-    && add-apt-repository ppa:deadsnakes/ppa -y \
-    && apt-get update \
-    && apt-get install -y python3.11 python3.11-venv python3.11-dev \
+    python3.10 \
+    python3.10-venv \
+    python3.10-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install uv (exact tooling used in manual steps)
@@ -63,14 +63,17 @@ ENV PATH="/root/.local/bin:${PATH}"
 COPY . /workspace/Hunyuan3D-2.1
 WORKDIR /workspace/Hunyuan3D-2.1
 
-# 1. Create venv via uv (Python 3.11) – required for bpy
-RUN uv venv --python 3.11 --seed
+# 1. Create venv via uv (Python 3.10)
+RUN uv venv --python 3.10 --seed
 ENV VIRTUAL_ENV=/workspace/Hunyuan3D-2.1/.venv
 ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 
 # 2. Install CUDA-enabled PyTorch stack using uv
 RUN uv pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 \
     --index-url https://download.pytorch.org/whl/cu124
+
+# 2.5. Install bpy from Blender's PyPI mirror (Python 3.10 compatible)
+RUN uv pip install bpy==4.0 --extra-index-url https://download.blender.org/pypi/
 
 # 3. Install Python dependencies (same command as setup guide)
 RUN uv pip install --index-strategy unsafe-best-match -r requirements.txt
