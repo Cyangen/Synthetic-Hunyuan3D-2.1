@@ -175,40 +175,66 @@ class ModelWorker:
             raise ValueError(f"Failed to generate 3D mesh: {str(e)}")
 
         # Export initial mesh without texture
-        
+        print("===== EXPORTING INITIAL MESH =====")
         initial_save_path = os.path.join(self.save_dir, f'{str(uid)}_initial.glb')
         mesh.export(initial_save_path)
+        print(f"Initial mesh saved to: {initial_save_path}")
+        print(f"Initial mesh file exists: {os.path.exists(initial_save_path)}")
         
-        # Generate textured mesh as obj ( as in demo )
+        # ALWAYS Generate textured mesh as obj ( as in demo )
+        print("===== STARTING TEXTURE GENERATION (ALWAYS ENABLED) =====")
         try:
+            print("Calling paint pipeline...")
             output_mesh_path_obj = os.path.join(self.save_dir, f'{str(uid)}_texturing.obj')
+            print(f"Target output path: {output_mesh_path_obj}")
+            print(f"Passing image type: {type(image)}")
+            
             textured_path_obj = self.paint_pipeline(
                 mesh_path=initial_save_path,
                 image_path=image,
                 output_mesh_path=output_mesh_path_obj,
                 save_glb=False            
             )
+            print("===== PAINT PIPELINE COMPLETED =====")
             logger.info("---Texture generation takes %s seconds ---" % (time.time() - start_time))
             logger.info(f"output_mesh_path: {output_mesh_path_obj} textured_path: {textured_path_obj}")
-            # Use the textured GLB as the final output
-            #final_save_path = os.path.join(self.save_dir, f'{str(uid)}_textured.{file_type}')
-            #os.rename(output_mesh_path, final_save_path)
+            print(f"output_mesh_path_obj: {output_mesh_path_obj}")
+            print(f"textured_path_obj returned: {textured_path_obj}")
+            print(f"OBJ file exists: {os.path.exists(textured_path_obj)}")
+            
+            # Check for texture files
+            albedo_path = textured_path_obj.replace('.obj', '.jpg')
+            metallic_path = textured_path_obj.replace('.obj', '_metallic.jpg')
+            roughness_path = textured_path_obj.replace('.obj', '_roughness.jpg')
+            print(f"Checking texture files:")
+            print(f"  Albedo ({albedo_path}): {os.path.exists(albedo_path)}")
+            print(f"  Metallic ({metallic_path}): {os.path.exists(metallic_path)}")
+            print(f"  Roughness ({roughness_path}): {os.path.exists(roughness_path)}")
 
             # Convert textured OBJ to GLB using obj2gltf with PBR support
-            print("convert textured OBJ to GLB")
+            print("Converting textured OBJ to GLB with PBR materials...")
             glb_path_textured = os.path.join(self.save_dir, f'{str(uid)}_texturing.glb')
             quick_convert_with_obj2gltf(textured_path_obj, glb_path_textured)
-            # now rename glb_path to uid_textured.glb
-            print("done.")
+            print(f"GLB conversion complete: {glb_path_textured}")
+            print(f"GLB file exists: {os.path.exists(glb_path_textured)}")
+            
+            # Rename to final path
+            print("Renaming to final path...")
             final_save_path = os.path.join(self.save_dir, f'{str(uid)}_textured.glb')
             os.rename(glb_path_textured, final_save_path)
-            print(f"final_save_path: {final_save_path}")
+            print(f"===== FINAL TEXTURED FILE: {final_save_path} =====")
+            print(f"Final file exists: {os.path.exists(final_save_path)}")
 
             
         except Exception as e:
+            print("===== TEXTURE GENERATION FAILED =====")
+            print(f"Error: {e}")
+            import traceback
+            print(f"Traceback:\n{traceback.format_exc()}")
             logger.error(f"Texture generation failed: {e}")
             # Fall back to untextured mesh if texture generation fails
             final_save_path = initial_save_path
+            print(f"Using untextured mesh as fallback: {final_save_path}")
             logger.warning(f"Using untextured mesh as fallback: {final_save_path}")
 
         if self.low_vram_mode:

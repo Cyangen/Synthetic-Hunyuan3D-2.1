@@ -30,7 +30,8 @@ custom_rasterizer_module = CUDAExtension(
         "nvcc": [
             "-O3",
             "-std=c++17",
-            "-gencode=arch=compute_90,code=sm_90",   # ✅ RTX 5080 (Hopper Blackwell)
+            "-gencode=arch=compute_86,code=sm_86",   # RTX 3080 (Ampere)
+            "-gencode=arch=compute_86,code=compute_86",  # +PTX for forward compat
         ],
     },
 )

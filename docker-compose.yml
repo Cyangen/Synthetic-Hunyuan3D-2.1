@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   hunyuan3d-backend:
@@ -7,7 +7,7 @@ services:
     container_name: hunyuan3d-backend
     restart: unless-stopped
     
-    # GPU support (requires nvidia-container-toolkit)
+    # ✅ Correct way to give GPUs in Docker Desktop / non-Swarm
     deploy:
       resources:
         reservations:
@@ -20,15 +20,24 @@ services:
       - "8081:8081"
     
     environment:
+      # ✅ Ensure the NVIDIA runtime exposes graphics/EGL for headless rendering
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics
+      
+      # App environment
       - CUDA_VISIBLE_DEVICES=0
       - LOW_VRAM_MODE=true
+      - PYOPENGL_PLATFORM=egl
+      
+      # If you only target RTX 3080, this speeds up extension builds
+      - TORCH_CUDA_ARCH_LIST=8.6+PTX
     
     volumes:
       - ./gradio_cache:/workspace/Hunyuan3D-2.1/gradio_cache
       - huggingface_cache:/root/.cache/huggingface
     
-    shm_size: '16gb'
-
+    # Plenty of shared memory for PyTorch/Blender
+    shm_size: "16gb"
+    
 volumes:
   huggingface_cache:
-
