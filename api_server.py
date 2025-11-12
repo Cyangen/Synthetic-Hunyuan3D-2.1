@@ -169,7 +169,7 @@ def generation_wrapper(uid, params):
                        operation="Removing background and preparing input")
         
         # Stage 3: Generating 3D shape (25-50%)
-        num_inference_steps = params.get('num_inference_steps', 50)
+        num_inference_steps = params.get('num_inference_steps', 30)
         update_progress(30, "Generating 3D shape", step=3, total_steps=6,
                        operation=f"Running diffusion model ({num_inference_steps} steps)")
         
