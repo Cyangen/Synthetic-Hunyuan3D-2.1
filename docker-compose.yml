@@ -25,12 +25,12 @@ services:
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics
       
       # App environment
-      - CUDA_VISIBLE_DEVICES=0
+      - CUDA_VISIBLE_DEVICES=0,1
       - LOW_VRAM_MODE=true
       - PYOPENGL_PLATFORM=egl
       
-      # If you only target RTX 3080, this speeds up extension builds
-      - TORCH_CUDA_ARCH_LIST=8.6+PTX
+      # Support both Quadro RTX 6000 (7.5) and RTX 3080 (8.6)
+      - TORCH_CUDA_ARCH_LIST=7.5;8.6+PTX
     
     volumes:
       - ./gradio_cache:/workspace/Hunyuan3D-2.1/gradio_cache
